@@ -86,10 +86,58 @@ public class CacheTest {
 
 
     /**
+     * 测试二级缓存和sqlSession无关
+     */
+    @Test
+    public void TEST_LEVEL_CACHE_NOT_RELEVANT() {
+        //根据 sqlSessionFactory 产生 session
+        SqlSession sqlSession1 = sqlSessionFactory.openSession();
+        SqlSession sqlSession2 = sqlSessionFactory.openSession();
+        IUserMapper userMapper1 = sqlSession1.getMapper(IUserMapper.class);
+        IUserMapper userMapper2 = sqlSession2.getMapper(IUserMapper.class); //第一次查询，发出sql语句，并将查询的结果放入缓存中
+        User u1 = userMapper1.findById(1);
+        System.out.println(u1);
+        sqlSession1.close();
+        //第一次查询完后关闭 sqlSession
+        //第二次查询，即使sqlSession1已经关闭了，这次查询依然不发出sql语句
+        User u2 = userMapper2.findById(1);
+        System.out.println(u2);
+        sqlSession2.close();
+    }
+
+    /**
+     * 测试二级缓存 执行commit()操作，二级缓存数据清空
+     */
+    @Test
+    public void TEST_LEVEL_CACHE_COMMIT() {
+        //根据 sqlSessionFactory 产生 session
+        SqlSession sqlSession1 = sqlSessionFactory.openSession();
+        SqlSession sqlSession2 = sqlSessionFactory.openSession();
+        SqlSession sqlSession3 = sqlSessionFactory.openSession();
+        String statement = "com.mryan.pojo.UserMapper.selectUserByUserld";
+        IUserMapper userMapper1 = sqlSession1.getMapper(IUserMapper.class);
+        IUserMapper userMapper2 = sqlSession2.getMapper(IUserMapper.class);
+        IUserMapper userMapper3 = sqlSession2.getMapper(IUserMapper.class);
+        //第一次查询，发出sql语句，并将查询的结果放入缓存中
+        User u1 = userMapper1.findById(1);
+        System.out.println(u1);
+        sqlSession1.close();
+        //第一次查询完后关闭sqlSession
+        //执行更新操作，commit()
+        u1.setUsername("aaa");
+        userMapper3.updateById(u1);
+        sqlSession3.commit();
+        //第二次查询，由于上次更新操作，缓存数据已经清空(防止数据脏读)，这里必须再次发出sql语
+        User u2 = userMapper2.findById(1);
+        System.out.println(u2);
+        sqlSession2.close();
+    }
+
+    /**
      * 测试二级缓存
      */
     @Test
-    public void SecondLevelCache() {
+    public void TEXT_SECOND_LEVEL_CACHE() {
         SqlSession sqlSession1 = sqlSessionFactory.openSession();
         SqlSession sqlSession2 = sqlSessionFactory.openSession();
         SqlSession sqlSession3 = sqlSessionFactory.openSession();
