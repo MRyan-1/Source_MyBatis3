@@ -61,6 +61,26 @@ public class CacheTest {
 
 
     /**
+     * 测试一级缓存 提交 是否重置缓存
+     */
+    @Test
+    public void TEST_QUERY_COMMIT_BY_FIRST_CACHE() {
+        //代理模式获取代理类
+        IUserMapper userMapper = sqlSession.getMapper(IUserMapper.class);
+        //第⼀次sql语句查询 将查询结果放入缓存中
+        User user1 = userMapper.findById(1);
+        System.out.println("第一次查询：" + user1);
+        //更新操作 并提交sqlSession
+        user1.setUsername("MRyan666");
+        userMapper.updateById(user1);
+        sqlSession.commit();
+        User user2 = userMapper.findById(1);
+        System.out.println("第二次查询：" + user2);
+        System.out.println(user1 == user2);
+    }
+
+
+    /**
      * 一级缓存测试
      */
     @Test
