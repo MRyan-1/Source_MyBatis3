@@ -64,7 +64,7 @@ public class CachingExecutor implements Executor {
             // 如果强制回滚，则回滚 TransactionalCacheManager
             if (forceRollback) {
                 tcm.rollback();
-            // 如果强制提交，则提交 TransactionalCacheManager
+                // 如果强制提交，则提交 TransactionalCacheManager
             } else {
                 tcm.commit();
             }
@@ -108,16 +108,15 @@ public class CachingExecutor implements Executor {
     @Override
     public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql)
             throws SQLException {
-
-        // 从 MappedStatement 中获取 Cache，注意这里的 Cache 是从MappedStatement中获取的
-        // 也就是我们上面解析Mapper中<cache/>标签中创建的，它保存在Configration中
-        // 我们在初始化解析xml时分析过每一个MappedStatement都有一个Cache对象，就是这里
+        //从mappedStatement中获取Cache（二级缓存是从MappedStatement中获取，MappedStatement存在于全局配置中，会有多个CachingExecutor获取，可能会出现线程安全问题，例如脏读）
+        //也就是我们上面解析Mapper中<cache/>标签中创建的，它保存在Configration中
+        //我们在初始化解析xml时分析过每一个MappedStatement都有一个Cache对象，就是这里
         Cache cache = ms.getCache();
-
-        // 如果配置文件中没有配置 <cache>，则 cache 为空
+        // 如果配置文件中没有配置 <cache>，则cache为空
         if (cache != null) {
-            //如果需要刷新缓存的话就刷新：flushCache="true"
+            //对应配置文件中的flushCache="true" 如果设置了flushCache为true则每次查询都会刷新缓存
             flushCacheIfRequired(ms);
+            //对应配置文件中的useCache 如果设置了useCache为true则走二级缓存
             if (ms.isUseCache() && resultHandler == null) {
                 // 暂时忽略，存储过程相关
                 ensureNoOutParams(ms, boundSql);
@@ -134,7 +133,7 @@ public class CachingExecutor implements Executor {
                 return list;
             }
         }
-        // 不使用缓存，则从数据库中查询(会查一级缓存)
+        // 不使用缓存，则从数据库中查询(如果不是第一次查会查一级缓存)
         return delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
     }
 

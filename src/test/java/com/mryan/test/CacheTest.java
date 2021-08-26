@@ -101,6 +101,47 @@ public class CacheTest {
         System.out.println(user1 == user2);
     }
 
+    /**
+     * 测试二级缓存 sqlSession不commit 二级缓存不生效
+     */
+    @Test
+    public void TEXT_SECOND_LEVEL_CACHE_INVALIDATION() {
+        SqlSession sqlSession1 = sqlSessionFactory.openSession();
+        SqlSession sqlSession2 = sqlSessionFactory.openSession();
+
+        IUserMapper mapper1 = sqlSession1.getMapper(IUserMapper.class);
+        IUserMapper mapper2 = sqlSession2.getMapper(IUserMapper.class);
+
+        User user1 = mapper1.findById(1);
+
+        User user2 = mapper2.findById(1);
+
+        System.out.println("第一次查询：" + user1);
+        System.out.println("第二次查询：" + user2);
+        System.out.println(user1 == user2);
+    }
+
+
+    /**
+     * 测试二级缓存 sqlSession commit 二级缓存生效
+     */
+    @Test
+    public void TEXT_SECOND_LEVEL_CACHE() {
+        SqlSession sqlSession1 = sqlSessionFactory.openSession();
+        SqlSession sqlSession2 = sqlSessionFactory.openSession();
+
+        IUserMapper mapper1 = sqlSession1.getMapper(IUserMapper.class);
+        IUserMapper mapper2 = sqlSession2.getMapper(IUserMapper.class);
+
+        User user1 = mapper1.findById(1);
+        //sqlSession提交 二级缓存生效
+        sqlSession1.commit();
+        User user2 = mapper2.findById(1);
+
+        System.out.println("第一次查询：" + user1);
+        System.out.println("第二次查询：" + user2);
+        System.out.println(user1 == user2);
+    }
 
     /**
      * 测试二级缓存和sqlSession无关
@@ -148,35 +189,6 @@ public class CacheTest {
         User u2 = userMapper2.findById(1);
         System.out.println(u2);
         sqlSession2.close();
-    }
-
-    /**
-     * 测试二级缓存
-     */
-    @Test
-    public void TEXT_SECOND_LEVEL_CACHE() {
-        SqlSession sqlSession1 = sqlSessionFactory.openSession();
-        SqlSession sqlSession2 = sqlSessionFactory.openSession();
-        SqlSession sqlSession3 = sqlSessionFactory.openSession();
-
-        IUserMapper mapper1 = sqlSession1.getMapper(IUserMapper.class);
-        IUserMapper mapper2 = sqlSession2.getMapper(IUserMapper.class);
-        IUserMapper mapper3 = sqlSession3.getMapper(IUserMapper.class);
-
-        User user1 = mapper1.findById(1);
-        sqlSession1.close(); //清空一级缓存
-
-        User user = new User();
-        user.setId(1);
-        user.setUsername("MRyan");
-        mapper3.updateById(user);
-        sqlSession3.commit();
-
-        User user2 = mapper2.findById(1);
-
-        System.out.println("第一次查询：" + user1);
-        System.out.println("第二次查询：" + user2);
-        System.out.println(user1 == user2);
     }
 
 

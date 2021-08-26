@@ -27,13 +27,13 @@ import java.util.concurrent.locks.ReadWriteLock;
 
 /**
  * The 2nd level cache transactional buffer.
- *
+ * <p>
  * 支持事务的 Cache 实现类，主要用于二级缓存中。
- *
+ * <p>
  * This class holds all cache entries that are to be added to the 2nd level cache during a Session.
- * Entries are sent to the cache when commit is called or discarded if the Session is rolled back. 
- * Blocking cache support has been added. Therefore any get() that returns a cache miss 
- * will be followed by a put() so any lock associated with the key can be released. 
+ * Entries are sent to the cache when commit is called or discarded if the Session is rolled back.
+ * Blocking cache support has been added. Therefore any get() that returns a cache miss
+ * will be followed by a put() so any lock associated with the key can be released.
  *
  * @author Clinton Begin
  * @author Eduardo Macarron
@@ -44,23 +44,23 @@ public class TransactionalCache implements Cache {
 
     /**
      * 委托的 Cache 对象。
-     *
+     * <p>
      * 实际上，就是二级缓存 Cache 对象。
      */
     private final Cache delegate;
     /**
      * 提交时，清空 {@link #delegate}
-     *
+     * <p>
      * 初始时，该值为 false
      * 清理后{@link #clear()} 时，该值为 true ，表示持续处于清空状态
      */
     private boolean clearOnCommit;
     /**
-     *  // 在事务被提交前，所有从数据库中查询的结果将缓存在此集合中
+     * 在事务被提交前，所有从数据库中查询的结果将缓存在此集合中
      */
     private final Map<Object, Object> entriesToAddOnCommit;
     /**
-     *   在事务被提交前，当缓存未命中时，CacheKey 将会被存储在此集合中
+     * 在事务被提交前，当缓存未命中时，CacheKey 将会被存储在此集合中
      */
     private final Set<Object> entriesMissedInCache;
 
@@ -91,10 +91,10 @@ public class TransactionalCache implements Cache {
             entriesMissedInCache.add(key);
         }
         // issue #146
-        // 如果 clearOnCommit 为 true ，表示处于持续清空状态，则返回 null
+        // 如果clearOnCommit为true ，表示处于持续清空状态，则返回 null
         if (clearOnCommit) {
             return null;
-        // 返回 value
+            // 返回 value
         } else {
             return object;
         }
@@ -107,7 +107,7 @@ public class TransactionalCache implements Cache {
 
     @Override
     public void putObject(Object key, Object object) {
-        // 将键值对存入到 entriesToAddOnCommit 这个Map中中，而非真实的缓存对象 delegate 中
+        // 将键值对存入到entriesToAddOnCommit这个Map中，而非真实的缓存对象delegate中
         entriesToAddOnCommit.put(key, object);
     }
 
@@ -118,25 +118,25 @@ public class TransactionalCache implements Cache {
 
     @Override
     public void clear() {
-        // 标记 clearOnCommit 为 true
+        // 标记clearOnCommit为true
         clearOnCommit = true;
-        // 清空 entriesToAddOnCommit
+        // 清空entriesToAddOnCommit
         entriesToAddOnCommit.clear();
     }
 
     public void commit() {
-        // 如果 clearOnCommit 为 true ，则清空 delegate 缓存
+        // 如果clearOnCommit为true ，则清空delegate缓存
         if (clearOnCommit) {
             delegate.clear();
         }
-        // 将 entriesToAddOnCommit、entriesMissedInCache 刷入 delegate(cache) 中
+        // 将entriesToAddOnCommit、entriesMissedInCache 刷入delegate(cache) 中
         flushPendingEntries();
         // 重置
         reset();
     }
 
     public void rollback() {
-        // 从 delegate 移除出 entriesMissedInCache
+        // 从delegate移除出entriesMissedInCache
         unlockMissedEntries();
         // 重置
         reset();
@@ -151,16 +151,16 @@ public class TransactionalCache implements Cache {
     }
 
     /**
-     * 将 entriesToAddOnCommit、entriesMissedInCache 刷入 delegate 中
+     * 将entriesToAddOnCommit、entriesMissedInCache刷入delegate(二级缓存)中
      */
     private void flushPendingEntries() {
-        // 将 entriesToAddOnCommit 中的内容转存到 delegate 中
+        // 将entriesToAddOnCommit中的内容转存到delegate中
         for (Map.Entry<Object, Object> entry : entriesToAddOnCommit.entrySet()) {
 
-            // 在这里真正的将entriesToAddOnCommit的对象逐个添加到delegate中，只有这时，二级缓存才真正的生效
+            //在这里真正的将entriesToAddOnCommit的对象以此添加到delegate中，只有这时，二级缓存才真正的生效
             delegate.putObject(entry.getKey(), entry.getValue());
         }
-        // 将 entriesMissedInCache 刷入 delegate 中
+        // 将entriesMissedInCache刷入delegate中
         for (Object entry : entriesMissedInCache) {
             if (!entriesToAddOnCommit.containsKey(entry)) {
                 delegate.putObject(entry, null);
