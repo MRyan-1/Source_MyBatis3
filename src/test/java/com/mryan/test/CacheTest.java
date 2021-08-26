@@ -61,7 +61,7 @@ public class CacheTest {
 
 
     /**
-     * 测试一级缓存 提交 是否重置缓存
+     * 测试一级缓存commit()是否重置缓存
      */
     @Test
     public void TEST_QUERY_COMMIT_BY_FIRST_CACHE() {
