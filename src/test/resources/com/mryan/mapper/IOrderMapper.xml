@@ -4,7 +4,8 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.mryan.mapper.IOrderMapper">
-
+    <!--开启二级缓存配置-->
+    <cache></cache>
     <!--
         private Integer id;
     private String orderTime;
@@ -15,7 +16,7 @@
         <result property="orderTime" column="orderTime"></result>
         <result property="total" column="total"></result>
 
-        <association property="user" javaType="com.mryan.pojo.User" >
+        <association property="user" javaType="com.mryan.pojo.User">
             <result property="id" column="uid"></result>
             <result property="username" column="username"></result>
         </association>
@@ -24,16 +25,18 @@
 
     <!--resultMap：手动来配置实体属性与表字段的映射关系-->
     <select id="findOrderAndUser" resultMap="orderMap">
-        select * from orders o,user u where o.uid = u.id
+        select *
+        from orders o,
+             user u
+        where o.uid = u.id
     </select>
 
 
     <select id="findOrderByUid" resultType="com.mryan.pojo.Order">
-        select * from orders where uid = #{uid}
+        select *
+        from orders
+        where uid = #{uid}
     </select>
-
-
-
 
 
 </mapper>

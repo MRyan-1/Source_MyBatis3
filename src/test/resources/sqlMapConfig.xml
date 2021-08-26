@@ -9,8 +9,12 @@
 
     <!--开启全局的二级缓存配置-->
     <settings>
+        <!--开启延迟加载-->
         <setting name="lazyLoadingEnabled" value="true"/>
+        <!--开启二级缓存设置-->
+        <setting name="cacheEnabled" value="true"/>
     </settings>
+
 
     <!--给实体类的全限定类名给别名-->
     <typeAliases>

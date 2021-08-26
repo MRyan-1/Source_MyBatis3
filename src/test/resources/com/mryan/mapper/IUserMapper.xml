@@ -4,7 +4,8 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.mryan.mapper.IUserMapper">
-
+    <!--开启二级缓存配置-->
+    <cache></cache>
     <resultMap id="userMap" type="com.mryan.pojo.User">
         <id property="id" column="id"></id>
         <result property="username" column="username"></result>
@@ -24,7 +25,7 @@
 
 
 
-   <select id="findById" resultMap="userMap"  >
+   <select id="findById" resultMap="userMap" useCache="true" >
        select * from user where id = #{id}
    </select>
 
