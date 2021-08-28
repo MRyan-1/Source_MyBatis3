@@ -203,23 +203,23 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     public List<Object> handleResultSets(Statement stmt) throws SQLException {
         ErrorContext.instance().activity("handling results").object(mappedStatement.getId());
 
-        // 多 ResultSet 的结果集合，每个 ResultSet 对应一个 Object 对象。而实际上，每个 Object 是 List<Object> 对象。
-        // 在不考虑存储过程的多 ResultSet 的情况，普通的查询，实际就一个 ResultSet ，也就是说，multipleResults 最多就一个元素。
+        // 多ResultSet的结果集合，每个 ResultSet 对应一个Object 对象。而实际上，每个Object 是List<Object> 对象。
+        // 在不考虑存储过程的多ResultSet的情况，普通的查询，实际就一个 ResultSet ，也就是说，multipleResults最多就一个元素。
         final List<Object> multipleResults = new ArrayList<>();
 
         int resultSetCount = 0;
-        // 获得首个 ResultSet 对象，并封装成 ResultSetWrapper 对象
+        // 获得首个ResultSet对象，并封装成ResultSetWrapper对象
         ResultSetWrapper rsw = getFirstResultSet(stmt);
 
-        // 获得 ResultMap 数组
-        // 在不考虑存储过程的多 ResultSet 的情况，普通的查询，实际就一个 ResultSet ，也就是说，resultMaps 就一个元素。
+        // 获得ResultMap数组
+        // 在不考虑存储过程的多ResultSet的情况，普通的查询，实际就一个 ResultSet ，也就是说，resultMaps就一个元素。
         List<ResultMap> resultMaps = mappedStatement.getResultMaps();
         int resultMapCount = resultMaps.size();
         validateResultMapsCount(rsw, resultMapCount); // 校验
         while (rsw != null && resultMapCount > resultSetCount) {
-            // 获得 ResultMap 对象
+            // 获得ResultMap对象
             ResultMap resultMap = resultMaps.get(resultSetCount);
-            // 处理 ResultSet ，将结果添加到 multipleResults 中
+            // 处理 ResultSet ，将结果添加到multipleResults中
             handleResultSet(rsw, resultMap, multipleResults, null);
             // 获得下一个 ResultSet 对象，并封装成 ResultSetWrapper 对象
             rsw = getNextResultSet(stmt);
@@ -253,10 +253,10 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     public <E> Cursor<E> handleCursorResultSets(Statement stmt) throws SQLException {
         ErrorContext.instance().activity("handling cursor results").object(mappedStatement.getId());
 
-        // 获得首个 ResultSet 对象，并封装成 ResultSetWrapper 对象
+        // 获得首个ResultSet对象，并封装成ResultSetWrapper对象
         ResultSetWrapper rsw = getFirstResultSet(stmt);
 
-        // 游标方式的查询，只允许一个 ResultSet 对象。因此，resultMaps 数组的数量，元素只能有一个
+        // 游标方式的查询，只允许一个ResultSet 对象。因此，resultMaps数组的数量，元素只能有一个
         List<ResultMap> resultMaps = mappedStatement.getResultMaps();
         int resultMapCount = resultMaps.size();
         validateResultMapsCount(rsw, resultMapCount);
@@ -729,7 +729,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
             final List<ResultMapping> propertyMappings = resultMap.getPropertyResultMappings();
             for (ResultMapping propertyMapping : propertyMappings) {
                 // issue gcode #109 && issue #149
-                if (propertyMapping.getNestedQueryId() != null && propertyMapping.isLazy()) {
+                if (propertyMapping.getNestedQueryId() != null && propertyMapping.isLazy())  {
                     resultObject = configuration.getProxyFactory().createProxy(resultObject, lazyLoader, configuration, objectFactory, constructorArgTypes, constructorArgs);
                     break;
                 }
@@ -1104,7 +1104,6 @@ public class DefaultResultSetHandler implements ResultSetHandler {
                 && resultSet.next()) { // ResultSet 是否还有下一条
             // 根据该行记录以及 ResultMap.discriminator ，决定映射使用的 ResultMap 对象
             final ResultMap discriminatedResultMap = resolveDiscriminatedResultMap(resultSet, resultMap, null);
-            // TODO 芋艿
             final CacheKey rowKey = createRowKey(discriminatedResultMap, rsw, null);
             Object partialObject = nestedResultObjects.get(rowKey);
             // issue #577 && #542

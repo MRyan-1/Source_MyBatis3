@@ -83,6 +83,22 @@ public class MybatisTest {
         }
     }
 
+    /*
+    测试 延迟加载查询
+   */
+    @Test
+    public void TEST_QUERY_LAZY() throws IOException {
+        InputStream inputStream = Resources.getResourceAsStream("sqlMapConfig.xml");
+        SqlSessionFactory factory = new SqlSessionFactoryBuilder().build(inputStream);
+        SqlSession sqlSession = factory.openSession();
+        User user = sqlSession.selectOne("com.mryan.mapper.IUserMapper.findById", 1);
+        //延迟加载生效 下方输出语句 不涉及到orders表 于是不会打印orders相关日志
+        System.out.println("user：" + user.getUsername());
+        //涉及orders表 才会执行相关SQL语句 加载orders执行日志 （延迟加载 什么时候用什么时候查）
+        System.out.println("orders：" + user.getOrderList());
+    }
+
+
 }
 
 

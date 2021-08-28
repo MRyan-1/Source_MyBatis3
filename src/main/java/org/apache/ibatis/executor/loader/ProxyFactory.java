@@ -28,7 +28,7 @@ import java.util.Properties;
  */
 public interface ProxyFactory {
 
-    // 设置属性，目前是空实现。可以暂时无视该方法
+    // 设置属性，目前是空实现, 暂时跳过
     void setProperties(Properties properties);
 
     // 创建代理对象

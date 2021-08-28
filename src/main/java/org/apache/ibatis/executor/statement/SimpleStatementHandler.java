@@ -95,7 +95,7 @@ public class SimpleStatementHandler extends BaseStatementHandler {
         String sql = boundSql.getSql();
         // 执行查询
         statement.execute(sql);
-        // 处理返回的 Cursor 结果
+        // 处理返回的Cursor结果
         return resultSetHandler.handleCursorResultSets(statement);
     }
 
