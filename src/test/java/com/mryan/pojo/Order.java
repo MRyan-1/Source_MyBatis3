@@ -1,6 +1,8 @@
 package com.mryan.pojo;
 
-public class Order {
+import java.io.Serializable;
+
+public class Order implements Serializable {
 
     private Integer id;
     private String orderTime;
